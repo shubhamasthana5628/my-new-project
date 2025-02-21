@@ -9,6 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+
 // Connect to MongoDB
 mongoose.connect("mongodb+srv://test:test-job123@cluster0.nbvfg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
     useNewUrlParser: true,
@@ -120,6 +121,7 @@ app.delete('/api/job-seekers/:id', async (req, res) => {
     await JobSeeker.findByIdAndDelete(req.params.id);
     res.json({ message: 'Job seeker deleted' });
 });
+
 
 // Routes for Recruiters
 app.post('/api/job-providers', async (req, res) => {

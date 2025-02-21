@@ -8,23 +8,32 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
-    role: 'jobSeeker' // Default to job seeker
+    role: 'jobSeeker', // Default role: Job Seeker
   });
+
   const navigate = useNavigate();
 
+  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${SERVER_ADDRESS}/api/register`, formData);
-      // Handle successful registration (e.g., redirect to login)
-      navigate('/login');
+      const response = await axios.post(`${SERVER_ADDRESS}/api/register`, formData);
+      console.log('Registration Successful:', response.data);
+
+      // Redirect based on role
+      if (formData.role === 'jobSeeker') {
+        navigate('/login'); // Redirect Job Seeker to Profile Creation
+      } else {
+        navigate('/login'); // Redirect Recruiter to Dashboard
+      }
     } catch (error) {
-      console.error('Registration failed:', error);
-      // Handle error (e.g., show error message)
+      console.error('Registration failed:', error.response?.data || error);
+      alert('Registration failed. Please try again.');
     }
   };
 
@@ -63,6 +72,7 @@ const Register = () => {
           name="role"
           value={formData.role}
           onChange={handleChange}
+          required
           style={{ width: '100%', marginBottom: '10px', padding: '10px' }}
         >
           <option value="jobSeeker">Job Seeker</option>

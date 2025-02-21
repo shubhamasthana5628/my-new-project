@@ -8,19 +8,33 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('jobSeeker')
   const navigate = useNavigate();
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(`${SERVER_ADDRESS}/api/login`, { email, password, role });
-      // Handle successful login (e.g., store token, redirect)
+  
       console.log(response.data);
-      navigate('/job-seeker/profile'); // Redirect to home or dashboard
+  
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token); // Store token
+  
+        // Redirect based on role
+        if (role === 'jobSeeker') {
+          navigate('/job-seeker/profile');
+        } else if (role === 'recruiter') {
+          navigate('/recruiter/candidateSearch');
+        }
+      } else {
+        console.error("No token received:", response.data);
+      }
+  
     } catch (error) {
-      console.error('Login failed:', error);
-      // Handle error (e.g., show error message)
+      console.error("Login failed:", error.response ? error.response.data : error.message);
     }
   };
+  
 
   return (
     <div style={{ maxWidth: '400px', margin: 'auto', padding: '20px' }}>
