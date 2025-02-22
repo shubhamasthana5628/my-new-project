@@ -37,49 +37,102 @@ const Register = () => {
     }
   };
 
+  // Inline Styles
+  const styles = {
+    container: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      backgroundColor: '#f5f7fa',
+    },
+    card: {
+      background: 'white',
+      padding: '30px',
+      borderRadius: '10px',
+      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+      width: '350px',
+      textAlign: 'center',
+    },
+    input: {
+      width: '100%',
+      padding: '10px',
+      marginBottom: '15px',
+      border: '1px solid #ccc',
+      borderRadius: '5px',
+      fontSize: '16px',
+      outline: 'none',
+    },
+    select: {
+      width: '100%',
+      padding: '10px',
+      marginBottom: '15px',
+      border: '1px solid #ccc',
+      borderRadius: '5px',
+      fontSize: '16px',
+      outline: 'none',
+    },
+    button: {
+      backgroundColor: '#007bff',
+      color: 'white',
+      padding: '12px',
+      border: 'none',
+      borderRadius: '5px',
+      fontSize: '16px',
+      cursor: 'pointer',
+      transition: '0.3s',
+    },
+    buttonHover: {
+      backgroundColor: '#0056b3',
+    },
+  };
+
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto', padding: '20px' }}>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', marginBottom: '10px', padding: '10px' }}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', marginBottom: '10px', padding: '10px' }}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', marginBottom: '10px', padding: '10px' }}
-        />
-        <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', marginBottom: '10px', padding: '10px' }}
-        >
-          <option value="jobSeeker">Job Seeker</option>
-          <option value="recruiter">Recruiter</option>
-        </select>
-        <button type="submit" style={{ width: '100%', padding: '10px' }}>Register</button>
-      </form>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h2>Register</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            style={styles.input}
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            style={styles.input}
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            style={styles.input}
+          />
+          <select name="role" value={formData.role} onChange={handleChange} required style={styles.select}>
+            <option value="jobSeeker">Job Seeker</option>
+            <option value="recruiter">Recruiter</option>
+          </select>
+          <button
+            type="submit"
+            style={styles.button}
+            onMouseOver={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
+            onMouseOut={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
+          >
+            Register
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
