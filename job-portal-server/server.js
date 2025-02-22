@@ -25,7 +25,7 @@ const jobSeekerSchema = new mongoose.Schema({
     location: String,
     currentCTC: Number,
     expectedCTC: Number,
-    noticePeriod: String
+    noticePeriod: String,
 });
 // Job Seeker registration schema
 const jobSeekeProfileSchema = new mongoose.Schema({
@@ -43,8 +43,11 @@ const recruiterSchema = new mongoose.Schema({
     name: String,
     company: String,
     email: String,
-    mobile: String
+    mobile: String,
+    password: String,
+    
 });
+
 const Recruiter = mongoose.model('Recruiter', recruiterSchema);
 
 // Job Schema
@@ -95,9 +98,13 @@ app.post('/api/login', async (req, res) => {
     if (!user) return res.status(400).json({ message: 'User not found' });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
-
+    let applicationComplete = false;
+    const userProfile = await JobSeeker.findOne({name: user.name})
+    if(userProfile) {
+        applicationComplete = true
+    }
     const token = jwt.sign({ id: user._id, role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token, user });
+    res.json({ token, user, applicationComplete });
 });
 
 // Routes for Job Seekers
@@ -111,6 +118,16 @@ app.get('/api/job-seekers', async (req, res) => {
     const seekers = await JobSeeker.find();
     res.json(seekers);
 });
+app.get('/api/job-seekers/search', async (req, res) => {
+    // Find job seekers based on filters
+    try {
+        const filters = req.query;
+        const seekers = await JobSeeker.find(filters);
+        res.json(seekers);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 
 app.put('/api/job-seekers/:id', async (req, res) => {
     const seeker = await JobSeeker.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -122,6 +139,26 @@ app.delete('/api/job-seekers/:id', async (req, res) => {
     res.json({ message: 'Job seeker deleted' });
 });
 
+app.post('/api/apply-job', async (req, res) => {
+    const { candidateId, jobId } = req.body;
+    
+    try {
+        // Check if the application already exists
+        const existingApplication = await Application.findOne({ candidateId, jobId });
+        if (existingApplication) {
+            return res.status(400).json({ message: 'You have already applied for this job' });
+        }
+
+        // Create a new application
+        const application = new Application({ candidateId, jobId });
+        await application.save();
+
+        res.json({ message: 'Job application submitted successfully', application });
+    } catch (error) {
+        res.status(500).json({ message: 'Error applying for job', error });
+    }
+});
+
 
 // Routes for Recruiters
 app.post('/api/job-providers', async (req, res) => {
@@ -130,7 +167,11 @@ app.post('/api/job-providers', async (req, res) => {
     res.json(recruiter);
 });
 
-app.get('/api/job-providers', async (req, res) => {
+app.get('/api/job-providers/:id', async (req, res) => {
+    const recruiter = await Recruiter.findById(req.params.id)
+    res.json(recruiter);
+});
+app.get('/api/job-providers/', async (req, res) => {
     const recruiters = await Recruiter.find();
     res.json(recruiters);
 });

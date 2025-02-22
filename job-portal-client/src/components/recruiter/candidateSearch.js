@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Container, Form, Button, ListGroup, Card } from 'react-bootstrap';
+import { SERVER_ADDRESS } from '../common/constant';
 
 const CandidateSearch = () => {
   const [candidates, setCandidates] = useState([]);
   const [searchParams, setSearchParams] = useState({
-    skill: '',
+    skillType: '',
     experience: '',
     location: '',
-    maxCTC: ''
+    expectedCTC: ''
   });
 
   const handleChange = (e) => {
@@ -16,7 +18,13 @@ const CandidateSearch = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get('/api/job-seekers', { params: searchParams });
+      let payload = {};
+      for(let key in searchParams) {
+        if(searchParams[key]?.length) {
+          payload[key] = searchParams[key];
+        }
+      }
+      const response = await axios.get(`${SERVER_ADDRESS}/api/job-seekers/search`, { params: payload });
       setCandidates(response.data);
     } catch (error) {
       console.error('Error fetching candidates:', error);
@@ -24,56 +32,64 @@ const CandidateSearch = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Search Candidates</h2>
-      <div>
-        <input
-          type="text"
-          name="skill"
-          placeholder="Skill"
-          value={searchParams.skill}
-          onChange={handleChange}
-          style={{ margin: '5px', padding: '10px' }}
-        />
-        <input
-          type="number"
-          name="experience"
-          placeholder="Experience (Years)"
-          value={searchParams.experience}
-          onChange={handleChange}
-          style={{ margin: '5px', padding: '10px' }}
-        />
-        <input
-          type="text"
-          name="location"
-          placeholder="Location"
-          value={searchParams.location}
-          onChange={handleChange}
-          style={{ margin: '5px', padding: '10px' }}
-        />
-        <input
-          type="number"
-          name="maxCTC"
-          placeholder="Max CTC"
-          value={searchParams.maxCTC}
-          onChange={handleChange}
-          style={{ margin: '5px', padding: '10px' }}
-        />
-        <button onClick={handleSearch} style={{ padding: '10px', margin: '5px' }}>Search</button>
-      </div>
+    <Container className="py-4">
+      <h2 className="mb-4">Search Candidates</h2>
+      <Card className="p-4 mb-4">
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Control 
+              type="text" 
+              name="skillType" 
+              placeholder="skillType" 
+              value={searchParams.skillType} 
+              onChange={handleChange} 
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Control 
+              type="number" 
+              name="experience" 
+              placeholder="Experience (Years)" 
+              value={searchParams.experience} 
+              onChange={handleChange} 
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Control 
+              type="text" 
+              name="location" 
+              placeholder="Location" 
+              value={searchParams.location} 
+              onChange={handleChange} 
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Control 
+              type="number" 
+              name="expectedCTC" 
+              placeholder="Expected CTC" 
+              value={searchParams.expectedCTC} 
+              onChange={handleChange} 
+            />
+          </Form.Group>
+          <Button variant="primary" onClick={handleSearch}>Search</Button>
+        </Form>
+      </Card>
+      
       <h3>Candidate Results</h3>
-      <ul>
+      <ListGroup>
         {candidates.map(candidate => (
-          <li key={candidate._id}>
-            <strong>{candidate.fullName}</strong> - {candidate.skillType} - {candidate.experience} years
-            <br />
-            Location: {candidate.location} | Current CTC: {candidate.currentCTC} | Expected CTC: {candidate.expectedCTC}
-            <br />
-            <button onClick={() => alert(`Contacting ${candidate.fullName}`)}>Contact</button>
-          </li>
+          <ListGroup.Item key={candidate._id} className="d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{candidate.fullName}</strong> - {candidate.skillType} - {candidate.experience} years
+              <br />
+              Location: {candidate.location} | Current CTC: {candidate.currentCTC} | Expected CTC: {candidate.expectedCTC}
+            </div>
+            <Button variant="success" onClick={() => alert(`Contacting ${candidate.fullName}`)}>Contact</Button>
+          </ListGroup.Item>
         ))}
-      </ul>
-    </div>
+      </ListGroup>
+    </Container>
   );
 };
 

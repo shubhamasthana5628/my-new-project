@@ -2,134 +2,68 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { SERVER_ADDRESS } from '../common/constant';
+import { Container, Form, Button, Alert } from 'react-bootstrap';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('jobSeeker');
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(`${SERVER_ADDRESS}/api/login`, { email, password, role });
-
-      console.log(response.data);
-
+      debugger
       if (response.data.token) {
-        localStorage.setItem('token', response.data.token); // Store token
-
-        // Redirect based on role
+        localStorage.setItem('token', response.data.token);
+        if(response?.data?.user?._id) {
+            localStorage.setItem('login', response.data.user._id);
+        }
         if (role === 'jobSeeker') {
-          navigate('/job-seeker/profile');
+        if(response.data.applicationComplete) {
+            navigate('/job-seeker/search')
+        } else {
+            navigate('/job-seeker/profile');
+        }
+          
         } else if (role === 'recruiter') {
-          navigate('/recruiter/candidateSearch'); // Corrected path
+          navigate('/recruiter/post-job');
         }
       } else {
-        console.error("No token received:", response.data);
+        setError("Invalid login credentials.");
       }
-
     } catch (error) {
-      console.error("Login failed:", error.response ? error.response.data : error.message);
+      setError(error.response ? error.response.data.message : 'Login failed');
     }
   };
 
-  // Inline Styles with Unique IDs
-  const styles = {
-    container: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      backgroundColor: '#f5f7fa',
-    },
-    card: {
-      background: 'white',
-      padding: '30px',
-      borderRadius: '10px',
-      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-      width: '350px',
-      textAlign: 'center',
-    },
-    input: {
-      width: '100%',
-      padding: '10px',
-      marginBottom: '15px',
-      border: '1px solid #ccc',
-      borderRadius: '5px',
-      fontSize: '16px',
-      outline: 'none',
-    },
-    select: {
-      width: '100%',
-      padding: '10px',
-      marginBottom: '15px',
-      border: '1px solid #ccc',
-      borderRadius: '5px',
-      fontSize: '16px',
-      outline: 'none',
-    },
-    button: {
-      backgroundColor: '#007bff',
-      color: 'white',
-      padding: '12px',
-      border: 'none',
-      borderRadius: '5px',
-      fontSize: '16px',
-      cursor: 'pointer',
-      transition: '0.3s',
-    },
-    buttonHover: {
-      backgroundColor: '#0056b3',
-    },
-  };
-
   return (
-    <div id="login-container" style={styles.container}>
-      <div id="login-card" style={styles.card}>
-        <h2>Login</h2>
-        <form onSubmit={handleLogin}>
-          <input
-            id="login-email"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={styles.input}
-          />
-          <input
-            id="login-password"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={styles.input}
-          />
-          <select
-            id="login-role"
-            name="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            required
-            style={styles.select}
-          >
-            <option value="jobSeeker">Job Seeker</option>
-            <option value="recruiter">Recruiter</option>
-          </select>
-          <button
-            id="login-button"
-            type="submit"
-            style={styles.button}
-            onMouseOver={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
-            onMouseOut={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
-          >
-            Login
-          </button>
-        </form>
+    <Container className="d-flex justify-content-center align-items-center vh-100">
+      <div className="p-4 border rounded shadow" style={{ width: '350px', background: 'white' }}>
+        <h2 className="text-center mb-4">Login</h2>
+        {error && <Alert variant="danger">{error}</Alert>}
+        <Form onSubmit={handleLogin}>
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Role</Form.Label>
+            <Form.Select value={role} onChange={(e) => setRole(e.target.value)} required>
+              <option value="jobSeeker">Job Seeker</option>
+              <option value="recruiter">Recruiter</option>
+            </Form.Select>
+          </Form.Group>
+          <Button variant="primary" type="submit" className="w-100">Login</Button>
+        </Form>
       </div>
-    </div>
+    </Container>
   );
 };
 

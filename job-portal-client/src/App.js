@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch, Routes } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Home from './components/pages/home';
 import Login from './components/pages/login';
 import Register from './components/pages/register';
@@ -7,6 +8,7 @@ import JobSearch from './components/jobseeker/jobSearch';
 import JobPosting from './components/recruiter/jobPosting';
 import CandidateSearch from './components/recruiter/candidateSearch';
 import Profile from './components/jobseeker/profile';
+
 
 function App() {
   return (
